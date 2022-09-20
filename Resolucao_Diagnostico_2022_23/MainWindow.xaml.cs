@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -95,9 +96,50 @@ namespace Resolucao_Diagnostico_2022_23
         private void btProcessaMovimento_Click(object sender, RoutedEventArgs e)
         {
             //Validar o nº processo
+            int nprocesso;
+
             //verificar se é um número
+            if(int.TryParse(tbNProcesso.Text,out nprocesso)==false)
+            {
+                lbMensagem.Content = "Nº de processo não é válido";
+                return;
+            }
             //verificar se existe na lista de alunos
-            //TODO: Continuar aqui
+            var aluno = Alunos.FirstOrDefault(a => a.Nprocesso == nprocesso);
+            if(aluno==null)
+            {
+                lbMensagem.Content = "Nº de processo não foi encontrado";
+                return;
+            }
+            //Mostrar fotografia
+            string ficheiro = System.AppDomain.CurrentDomain.BaseDirectory + "Fotos\\" + nprocesso + ".jpg";
+            if(File.Exists(ficheiro))
+            {
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.CacheOption = BitmapCacheOption.OnLoad;
+                img.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                img.UriSource = new Uri(ficheiro);
+                img.EndInit();
+                imgFoto.Source = img;
+            }
+            //Indicar tipo de movimento
+            string tipoMovimento = "";
+            if (aluno.Estado == false)
+                tipoMovimento = "Entrada";
+            else
+                tipoMovimento = "Saída";
+            lbMensagem.Content = $"{aluno.Nome} - {tipoMovimento}";
+            //Registar o movimento
+            Movimentos.Add(new Movimento(aluno,DateTime.Now,tipoMovimento));
+            //Atualizar o estado do aluno
+            aluno.Estado = !aluno.Estado;
+        }
+
+        private void btListaMovimentos_Click(object sender, RoutedEventArgs e)
+        {
+            AreaAdmin areaAdmin = new AreaAdmin(Movimentos);
+            areaAdmin.Show();
         }
     }
 }

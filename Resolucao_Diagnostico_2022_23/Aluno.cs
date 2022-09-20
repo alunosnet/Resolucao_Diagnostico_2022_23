@@ -13,5 +13,9 @@ namespace Resolucao_Diagnostico_2022_23
         public DateTime DataNascimento { get; set; }
         public bool Estado { get; set; } /*True - na escola; False - fora da escola*/
 
+        public override string ToString()
+        {
+            return Nome;
+        }
     }
 }
